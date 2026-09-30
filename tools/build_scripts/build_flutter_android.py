@@ -82,7 +82,6 @@ def main() -> int:
         "build",
         "apk",
         "--release",
-        "--no-pub",
         "--split-per-abi",
         "--target-platform",
         "android-arm64",
