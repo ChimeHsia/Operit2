@@ -1,0 +1,2 @@
+tools/android-runtime/*.sh text eol=lf
+tools/android-runtime/patches/*.patch text eol=lf

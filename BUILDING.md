@@ -354,7 +354,7 @@ Linux Release Build       Linux App and/or CLI
 Android Flutter Build     signed Android APKs
 ```
 
-Android Flutter Build requires these repository secrets before it can run:
+Android Flutter Build uses these repository secrets for release signing:
 
 ```text
 ANDROID_RELEASE_KEYSTORE_BASE64
@@ -365,6 +365,10 @@ ANDROID_RELEASE_KEY_PASSWORD
 
 `ANDROID_RELEASE_KEYSTORE_BASE64` is the Base64 encoding of the Android release
 keystore. The workflow writes the signing material only inside its runner.
+If none of these secrets are configured, the workflow generates a temporary
+test signing key. Those APKs are for testing and cannot update an installation
+signed with a different key. Partial signing configuration is rejected.
+Pushes to the personal `ChimeHsia` branch also trigger this workflow.
 
 OpenHarmony has no GitHub Actions workflow yet. Its SDK and command-line tools
 are not currently distributed from a reproducible URL available to this

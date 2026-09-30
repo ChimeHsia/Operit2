@@ -9,7 +9,7 @@ downloads_dir="$cache_dir/downloads"
 work_dir="$cache_dir/work"
 apk_static_dir="$cache_dir/apk-static"
 
-mirror="https://dl-cdn.alpinelinux.org/alpine"
+mirror="${OPERIT_ALPINE_MIRROR:-https://dl-cdn.alpinelinux.org/alpine}"
 branch="latest-stable"
 host_arch="x86_64"
 

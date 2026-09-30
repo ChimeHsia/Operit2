@@ -1,6 +1,8 @@
 name: Android Flutter Build
 
 on:
+  push:
+    branches: [ChimeHsia]
   workflow_dispatch:
 
 permissions:
@@ -80,6 +82,9 @@ jobs:
       QUICKJS_WASM_SYS_WASI_SDK_MINOR_VERSION: 0
 
     steps:
+      - name: Enable Git symlinks
+        run: git config --global core.symlinks true
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -99,6 +104,13 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install workflow plugin dependencies
+        working-directory: plugins/packages/buildin/workflow
+        shell: pwsh
+        run: |
+          corepack enable
+          corepack pnpm install --frozen-lockfile
+
       - name: Install Java
         uses: actions/setup-java@v4
         with:
@@ -109,7 +121,7 @@ jobs:
         shell: pwsh
         run: |
           dart pub global activate fvm $env:FVM_VERSION
-          "$env:APPDATA\Pub\Cache\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          "$env:PUB_CACHE\bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
 
       - name: Install project Flutter SDK
         working-directory: apps/flutter/app
@@ -153,13 +165,22 @@ jobs:
             "ANDROID_RELEASE_KEY_PASSWORD"
           )
           $missing = $required | Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
-          if ($missing.Count -gt 0) {
+          if ($missing.Count -gt 0 -and $missing.Count -lt $required.Count) {
             throw "Missing required GitHub Actions secrets: $($missing -join ', ')"
           }
           $secretsDir = "tools/release/secrets"
           New-Item -ItemType Directory -Force -Path $secretsDir | Out-Null
           $keystore = Join-Path $secretsDir "operit2-release.keystore"
-          [System.IO.File]::WriteAllBytes($keystore, [System.Convert]::FromBase64String($env:ANDROID_RELEASE_KEYSTORE_BASE64))
+          if ($missing.Count -eq $required.Count) {
+            Write-Host "No release secrets configured; generating a temporary test signing key."
+            $env:ANDROID_RELEASE_STORE_PASSWORD = "android"
+            $env:ANDROID_RELEASE_KEY_ALIAS = "androiddebugkey"
+            $env:ANDROID_RELEASE_KEY_PASSWORD = "android"
+            keytool -genkeypair -keystore $keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 30 -dname "CN=Android Debug,O=Android,C=US"
+            if ($LASTEXITCODE -ne 0) { throw "Failed to generate test signing key" }
+          } else {
+            [System.IO.File]::WriteAllBytes($keystore, [System.Convert]::FromBase64String($env:ANDROID_RELEASE_KEYSTORE_BASE64))
+          }
           @"
           RELEASE_STORE_FILE=operit2-release.keystore
           RELEASE_STORE_PASSWORD=$env:ANDROID_RELEASE_STORE_PASSWORD

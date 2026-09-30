@@ -56,6 +56,10 @@ an artifact.
 The dependency lockfiles are checked in with the runtime sources. Do not
 regenerate them with a different package mirror or toolchain and commit the
 result as part of an unrelated runtime change.
+
+Set `OPERIT_ALPINE_MIRROR` to an Alpine mirror URL when the default CDN is
+unreachable. Downloaded minirootfs archives are still checked against the
+SHA-256 in the mirror's release metadata.
 ## One-Shot Build
 
 Run from Windows PowerShell:

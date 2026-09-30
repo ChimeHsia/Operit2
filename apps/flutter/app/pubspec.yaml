@@ -185,8 +185,6 @@ flutter:
       platforms: [android, ios, linux, macos, windows]
     - path: assets/web_access/assets/packages/liquid_glass_widgets/shaders/
       platforms: [android, ios, linux, macos, windows]
-    - path: assets/web_access/assets/shaders/
-      platforms: [android, ios, linux, macos, windows]
     - path: assets/web_access/canvaskit/
       platforms: [android, ios, linux, macos, windows]
     - path: assets/web_access/canvaskit/chromium/
